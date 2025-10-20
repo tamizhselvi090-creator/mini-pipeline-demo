@@ -26,11 +26,14 @@ pipeline {
 
     stage('Deploy') {
       steps {
-        bat '''
-          if not exist "%WORKSPACE%\deployed" mkdir "%WORKSPACE%\deployed"
-          copy target\*.jar "%WORKSPACE%\deployed\"
-          dir "%WORKSPACE%\deployed"
-        '''
+        // Create deployed folder (PowerShell handles paths safely)
+        bat 'powershell -Command "New-Item -ItemType Directory -Path \\\"$Env:WORKSPACE\\\\deployed\\\" -Force"'
+
+        // Copy jar(s) to deployed folder
+        bat 'powershell -Command "Copy-Item -Path target\\\\*.jar -Destination \\\"$Env:WORKSPACE\\\\deployed\\\" -Force"'
+
+        // List deployed folder contents
+        bat 'powershell -Command "Get-ChildItem -Path \\\"$Env:WORKSPACE\\\\deployed\\\" | Format-Table -AutoSize"'
       }
     }
   }
